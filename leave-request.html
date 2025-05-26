@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#2b7a78" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title> طلب غجازة الموف - هيئة حماية المستهلك</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+  <style>
+    body {
+      background: #f6f8ee;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding: 30px;
+      font-size: 14px;
+    }
+    .header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .header img {
+      height: 80px;
+      margin: 0 auto;
+    }
+    h2 {
+      font-size: 24px;
+      color:#2b7a78 ;
+      margin: 0;
+    }
+    form {
+      background:#9adbdb;
+      padding: 20px 20px 15px;
+      border-radius: 15px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      max-width: 500px;
+      margin: auto;
+      font-size: 12px;
+    }
+    label {
+      font-weight: bold;
+      font-size: 12px;
+    }
+    .form-control-sm, .form-select-sm {
+      font-size: 12px;
+      height: 30px;
+    }
+    .btn-primary {
+      background-color:#2b7a78 ;
+      border: none;
+      font-size: 12px;
+      height: 30px;
+      min-width: 80px;
+      padding-left: 8px;
+      padding-right: 8px;
+    }
+    .btn-primary:hover {
+      background-color:#2b7a78 ;
+    }
+    .table-container {
+      overflow-x: auto;
+      margin-top: 30px;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    table {
+      background-color: #838686;
+      border-radius: 10px;
+      overflow: hidden;
+      font-size: 12px;
+      width: 100%;
+    }
+    th {
+      background-color: #2b7a78;
+      color: white;
+      text-align: center;
+      padding: 6px 10px;
+    }
+    td {
+      text-align: center;
+      padding: 6px 10px;
+      background: white;
+    }
+    .footer-buttons {
+      max-width: 700px;
+      margin: 20px auto 0;
+      text-align: center;
+      font-size: 12px;
+    }
+    .footer-buttons button,
+    .footer-buttons input[type="file"] {
+      margin: 5px 5px;
+      padding: 6px 12px;
+      font-size: 12px;
+      min-width: 90px;
+      background-color: #2b7a78;
+      border: none;
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .footer-buttons button:hover {
+      background-color: #1e5e5a;
+    }
+    .footer-buttons input[type="file"] {
+      padding: 6px 5px;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="header">
+    <img src="logo.png" alt="شعار الهيئة" />
+    <h2> إجازة الموظف</h2>
+  </div>
+
+  <form id="leaveForm">
+    <div class="row g-2">
+      <div class="col-md-6">
+        <label class="form-label">اسم الموظف</label>
+        <input type="text" class="form-control form-control-sm" id="employeeName" required />
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">نوع الإجازة</label>
+        <select class="form-select form-select-sm" id="leaveType">
+          <option>اعتادية</option>
+          <option>مرضية</option>
+          <option>مرافقة مريض</option>
+          <option>طارئة</option>
+          <option>أخرى</option>
+        </select>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">تاريخ البداية</label>
+        <input type="date" class="form-control form-control-sm" id="startDate" required />
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">تاريخ النهاية</label>
+        <input type="date" class="form-control form-control-sm" id="endDate" required />
+      </div>
+    </div>
+    <button type="submit" class="btn btn-primary btn-sm mt-3 px-3">
+      ➕ إضافة
+    </button>
+  </form>
+
+  <div class="table-container">
+    <table class="table table-bordered mt-4" id="leaveTable">
+      <thead>
+        <tr>
+          <th>اسم الموظف</th>
+          <th>نوع الإجازة</th>
+          <th>تاريخ البداية</th>
+          <th>تاريخ النهاية</th>
+          <th>تعديل</th>
+          <th>حذف</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <div class="footer-buttons mt-4">
+    <button onclick="exportExcel()">📥 تصدير Excel</button>
+    <button onclick="downloadPDF()">📄 تصدير PDF</button>
+    <button onclick="exportJSON()">💾 حفظ JSON</button>
+    <input type="file" id="importFile" accept=".json" onchange="importJSON(event)" style="display:none" />
+    <button onclick="document.getElementById('importFile').click()">⬆️ رفع JSON</button>
+    <button onclick="shareViaOutlook()">📧 مشاركة عبر Outlook</button>
+  </div>
+
+  <script>
+    let editingIndex = -1;
+
+    document.getElementById('leaveForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const name = employeeName.value.trim();
+      const type = leaveType.value;
+      const start = startDate.value;
+      const end = endDate.value;
+
+      if (!name || !start || !end) return;
+
+      const row = [name, type, start, end];
+      const rows = JSON.parse(localStorage.getItem('leaves') || '[]');
+
+      if (editingIndex >= 0) {
+        rows[editingIndex] = row;
+        editingIndex = -1;
+      } else {
+        rows.push(row);
+      }
+
+      localStorage.setItem('leaves', JSON.stringify(rows));
+      this.reset();
+      renderTable();
+    });
+
+    function renderTable() {
+      const tbody = document.querySelector('#leaveTable tbody');
+      tbody.innerHTML = '';
+      const rows = JSON.parse(localStorage.getItem('leaves') || '[]');
+      rows.forEach((r, i) => {
+        const tr = document.createElement('tr');
+        r.forEach(cell => (tr.innerHTML += `<td>${cell}</td>`));
+        tr.innerHTML += `<td><button class='btn btn-sm btn-info' onclick='editRow(${i})'>✏️</button></td>`;
+        tr.innerHTML += `<td><button class='btn btn-sm btn-danger' onclick='deleteRow(${i})'>🗑️</button></td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function editRow(i) {
+      const row = JSON.parse(localStorage.getItem('leaves'))[i];
+      [employeeName.value, leaveType.value, startDate.value, endDate.value] = row;
+      editingIndex = i;
+    }
+
+    function deleteRow(i) {
+      const rows = JSON.parse(localStorage.getItem('leaves'));
+      rows.splice(i, 1);
+      localStorage.setItem('leaves', JSON.stringify(rows));
+      renderTable();
+    }
+
+    function exportExcel() {
+      const wb = XLSX.utils.book_new();
+      const data = JSON.parse(localStorage.getItem('leaves') || '[]');
+      const ws = XLSX.utils.aoa_to_sheet([["اسم الموظف","نوع الإجازة","تاريخ البداية","تاريخ النهاية"], ...data]);
+      XLSX.utils.book_append_sheet(wb, ws, "الإجازات");
+      XLSX.writeFile(wb, "طلبات_الإجازة.xlsx");
+    }
+
+    function downloadPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF('p', 'pt', 'a4');
+      const element = document.getElementById('leaveTable');
+
+      html2canvas(element).then(canvas => {
+        const imgData = canvas.toDataURL('image/png');
+        const imgProps = doc.getImageProperties(imgData);
+        const pdfWidth = doc.internal.pageSize.getWidth() - 40;
+        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+        doc.addImage(imgData, 'PNG', 20, 20, pdfWidth, pdfHeight);
+        doc.save('طلبات_الإجازة.pdf');
+      });
+    }
+
+    function exportJSON() {
+      const data = localStorage.getItem('leaves');
+      if (!data) return alert("لا توجد بيانات للحفظ");
+      const blob = new Blob([data], { type: "application/json" });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = "اجازات.json";
+      a.click();
+    }
+
+    function importJSON(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const imported = JSON.parse(reader.result);
+          if (!Array.isArray(imported)) throw "ملف غير صالح";
+          localStorage.setItem('leaves', JSON.stringify(imported));
+          renderTable();
+        } catch {
+          alert("ملف JSON غير صالح");
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function shareViaOutlook() {
+      window.open('https://outlook.office.com/mail/deeplink/compose', '_blank');
+    }
+
+    renderTable();
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js')
+      .then(() => console.log("✅ تم تسجيل Service Worker"))
+      .catch(err => console.error("❌ فشل التسجيل", err));
+  }
+
+  </script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+ <div style="text-align: center; margin-top: 40px;">
+  <button onclick="window.location.href='login.html'" style="background-color: #6c757d; color: white; padding: 8px 20px; border: none; border-radius: 6px; font-size: 13px; cursor: pointer;">
+    🏠 العودة للرئيسية
+  </button>
+</div>
+ 
+</body>
+</html>

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#2b7a78" />
+  <meta charset="UTF-8">
+  <title>برنامج إجازاتي</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      background-color: #f0f0f0;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .main-container {
+      display: flex;
+      background-color: white;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      max-width: 800px;
+      width: 100%;
+    }
+
+    .info-section {
+      width: 50%;
+      background-color: #9adbdb;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 30px;
+      box-sizing: border-box;
+    }
+
+    .info-section img {
+      width: 80px;
+      margin-bottom: 15px;
+    }
+
+    .info-section span {
+      font-size: 16px;
+      text-align: center;
+      color: #004e7c;
+      font-weight: bold;
+    }
+
+    .form-section {
+      width: 50%;
+      background-color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 30px;
+      box-sizing: border-box;
+    }
+
+    .form-container {
+      width: 100%;
+      max-width: 300px;
+      background-color: #9adbdb;
+      padding: 25px;
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    .form-container img {
+      max-width: 100px; /* تم تكبير الشعار هنا */
+      margin-bottom: 20px;
+    }
+
+    .form-container h2 {
+      margin: 10px 0;
+    }
+
+    .form-container p {
+      margin: 5px 0 15px;
+      font-size: 14px;
+    }
+
+    .form-container input {
+      width: 90%;
+      padding: 8px;
+      margin-bottom: 15px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      text-align: center;
+    }
+
+    .form-container button {
+      background-color: #2b7a78;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    @media (max-width: 700px) {
+      .main-container {
+        flex-direction: column;
+        max-width: 90%;
+      }
+
+      .info-section, .form-section {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="main-container">
+  <div class="info-section">
+    <img src="vacation.png" alt="رمز الإجازة"> <!-- صورة شفافة -->
+    <span>هذا التطبيق يتيح للموظفين تقديم وتتبع طلبات الإجازات بكل سهولة ومرونة.</span>
+  </div>
+
+  <div class="form-section">
+    <div class="form-container">
+      <img src="logo.png" alt="شعار المؤسسة">
+      <h2>برنامج إجازاتي</h2>
+      <p>أدخل الرقم الوظيفي لتسجيل الدخول</p>
+      <input type="text" id="empId" placeholder="الرقم الوظيفي">
+      <br>
+      <button onclick="login()">دخول</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  function login() {
+    const empId = document.getElementById("empId").value.trim();
+    if (empId) {
+      localStorage.setItem("jobNumber", empId);
+      window.location.href = "leave-request.html";
+    } else {
+      alert("يرجى إدخال الرقم الوظيفي.");
+    }
+  }
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js')
+      .then(() => console.log("✅ تم تسجيل Service Worker"))
+      .catch(err => console.error("❌ فشل التسجيل", err));
+  }
+
+</script>
+
+</body>
+</html>
